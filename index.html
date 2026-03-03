@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Focus Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+    <h1>Focus Tracker</h1>
+
+    <div class="section">
+      <h2>Add Habit</h2>
+      <input type="text" id="habitInput" placeholder="Enter habit">
+      <button onclick="addHabit()">Add Habit</button>
+      <ul id="habitList"></ul>
+    </div>
+
+    <div class="section">
+      <h2>Add Study Session (Hours)</h2>
+      <input type="number" id="studyInput" placeholder="Enter hours">
+      <button onclick="addStudy()">Add Study</button>
+      <p>Total Study Hours: <span id="totalHours">0</span></p>
+    </div>
+  </div>
+
+<script src="script.js"></script>
+</body>
+        </html>
