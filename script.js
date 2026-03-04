@@ -18,11 +18,7 @@ function loadData() {
 }
 
 function saveData() {
-  const data = {
-    totalHours,
-    streak,
-    habits
-  };
+  const data = { totalHours, streak, habits };
   localStorage.setItem("focusTrackerData", JSON.stringify(data));
 }
 
@@ -44,7 +40,7 @@ function addStudy() {
   if (input.value.trim() === "" || isNaN(input.value)) return;
 
   totalHours += parseFloat(input.value); // allows decimals
-  streak += 1; // simple increment (can add date logic later)
+  streak += 1;
   input.value = "";
 
   saveData();
@@ -95,9 +91,8 @@ function renderHabits() {
 // ---------------------------
 // EXPORT REPORT
 // ---------------------------
-document.getElementById("exportBtn").addEventListener("click", () => {
+function exportReport() {
   let report = "Focus Tracker Report\n\n";
-
   report += `Total Study Hours: ${totalHours}\n`;
   report += `Daily Streak: ${streak}\n\n`;
   report += "Habits:\n";
@@ -113,7 +108,7 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   a.download = "Focus_Tracker_Report.txt";
   a.click();
   URL.revokeObjectURL(url);
-});
+}
 
 // ---------------------------
 // THEME TOGGLE
@@ -136,6 +131,13 @@ themeToggle.addEventListener("click", () => {
   localStorage.setItem("theme", theme);
   applyTheme();
 });
+
+// ---------------------------
+// EVENT LISTENERS FOR BUTTONS
+// ---------------------------
+document.getElementById("addHabitBtn").addEventListener("click", addHabit);
+document.getElementById("addStudyBtn").addEventListener("click", addStudy);
+document.getElementById("exportBtn").addEventListener("click", exportReport);
 
 // ---------------------------
 // INITIALIZE APP
