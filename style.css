@@ -1,8 +1,21 @@
+:root {
+  --bg1: #1e1e2f;
+  --bg2: #2b2b45;
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --text-color: white;
+}
+
+body.light {
+  --bg1: #f5f5f5;
+  --bg2: #e0e0e0;
+  --card-bg: rgba(0, 0, 0, 0.05);
+  --text-color: black;
+}
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #1e1e2f, #2b2b45);
-  color: white;
+  background: linear-gradient(135deg, var(--bg1), var(--bg2));
+color: var(--text-color);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,7 +23,7 @@ body {
 }
 
 .container {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--card-bg);
   padding: 20px;
   border-radius: 15px;
   width: 90%;
@@ -62,4 +75,16 @@ li {
   padding: 8px;
   border-radius: 8px;
   margin-top: 8px;
+  }
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#themeToggle {
+  width: auto;
+  padding: 5px 10px;
+  background: transparent;
+  font-size: 18px;
   }
