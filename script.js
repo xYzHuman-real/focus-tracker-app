@@ -4,6 +4,7 @@
 let totalHours = 0;
 let streak = 0;
 let habits = [];
+let lastStudyDate = null; // Tracks last day a study session was added
 
 // ---------------------------
 // LOAD & SAVE DATA
@@ -14,11 +15,12 @@ function loadData() {
     totalHours = savedData.totalHours || 0;
     streak = savedData.streak || 0;
     habits = savedData.habits || [];
+    lastStudyDate = savedData.lastStudyDate || null;
   }
 }
 
 function saveData() {
-  const data = { totalHours, streak, habits };
+  const data = { totalHours, streak, habits, lastStudyDate };
   localStorage.setItem("focusTrackerData", JSON.stringify(data));
 }
 
@@ -39,8 +41,15 @@ function addStudy() {
   const input = document.getElementById("studyInput");
   if (input.value.trim() === "" || isNaN(input.value)) return;
 
-  totalHours += parseFloat(input.value); // allows decimals
-  streak += 1;
+  const today = new Date().toDateString(); // e.g., "Wed Mar 04 2026"
+
+  // Increase streak only if it's a new day
+  if (lastStudyDate !== today) {
+    streak += 1;
+    lastStudyDate = today;
+  }
+
+  totalHours += parseFloat(input.value);
   input.value = "";
 
   saveData();
@@ -54,11 +63,7 @@ function addHabit() {
   const input = document.getElementById("habitInput");
   if (input.value.trim() === "") return;
 
-  habits.push({
-    name: input.value,
-    completed: false
-  });
-
+  habits.push({ name: input.value, completed: false });
   input.value = "";
   saveData();
   renderHabits();
