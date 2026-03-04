@@ -114,3 +114,23 @@ li {
   font-weight: bold;
   margin-top: 8px;
   }
+/* Habit List */
+#habitList li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#habitList li:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+#habitList input[type="checkbox"] {
+  transform: scale(1.2);
+  }
