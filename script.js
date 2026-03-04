@@ -13,7 +13,7 @@ function addStudy() {
   const input = document.getElementById("studyInput");
   if (input.value.trim() === "" || isNaN(input.value)) return;
 
-  totalHours += parseInt(input.value);
+  totalHours += parseFloat(input.value);
   streak += 1;
 
   input.value = "";
@@ -30,7 +30,11 @@ function addHabit() {
   const input = document.getElementById("habitInput");
   if (input.value.trim() === "") return;
 
-  habits.push({ name: input.value.trim(), completed: false });
+  // Each habit is now an object
+  habits.push({
+    name: input.value,
+    completed: false
+  });
 
   input.value = "";
   saveData();
@@ -65,12 +69,23 @@ function renderHabits() {
 
   habits.forEach((habit, index) => {
     const li = document.createElement("li");
-    li.innerHTML = `
-      <input type="checkbox" ${habit.completed ? "checked" : ""} data-index="${index}" />
-      <span>${habit.name}</span>
-    `;
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = habit.completed;
+
+    checkbox.addEventListener("change", () => {
+      habits[index].completed = checkbox.checked;
+      saveData();
+    });
+
+    const span = document.createElement("span");
+    span.textContent = habit.name;
+
+    li.appendChild(checkbox);
+    li.appendChild(span);
     habitList.appendChild(li);
   });
+}
 
   // Add event listener for checkboxes
   document.querySelectorAll("#habitList input[type=checkbox]").forEach(checkbox => {
