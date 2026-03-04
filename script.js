@@ -11,13 +11,26 @@ function saveData() {
 }
 
 function renderHabits() {
-  const list = document.getElementById("habitList");
-  list.innerHTML = "";
+  const habitList = document.getElementById("habitList");
+  habitList.innerHTML = "";
+
   habits.forEach((habit, index) => {
     const li = document.createElement("li");
-    li.textContent = habit;
-    li.onclick = () => removeHabit(index);
-    list.appendChild(li);
+    li.innerHTML = `
+      <input type="checkbox" ${habit.completed ? "checked" : ""} data-index="${index}" />
+      <span>${habit.name}</span>
+    `;
+    habitList.appendChild(li);
+  });
+
+  // Add event listener for checkboxes
+  document.querySelectorAll("#habitList input[type=checkbox]").forEach(checkbox => {
+    checkbox.addEventListener("change", (e) => {
+      const idx = e.target.dataset.index;
+      habits[idx].completed = e.target.checked;
+      saveData();
+      renderHabits();
+    });
   });
 }
 
