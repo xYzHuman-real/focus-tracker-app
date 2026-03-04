@@ -28,20 +28,28 @@ function renderHabits() {
     checkbox.addEventListener("change", (e) => {
       const idx = e.target.dataset.index;
       habits[idx].completed = e.target.checked;
-      saveData();
+      localStorage.setItem("habits", JSON.stringify(habits));
       renderHabits();
     });
   });
-}
+      }
 
 function addHabit() {
   const input = document.getElementById("habitInput");
   if (input.value.trim() === "") return;
-  habits.push(input.value);
+
+  // Push an object with name and completed status
+  habits.push({ name: input.value.trim(), completed: false });
+
+  // Clear input
   input.value = "";
-  saveData();
+
+  // Save to localStorage
+  localStorage.setItem("habits", JSON.stringify(habits));
+
+  // Re-render habit list
   renderHabits();
-}
+               }
 
 function removeHabit(index) {
   habits.splice(index, 1);
