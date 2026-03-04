@@ -1,52 +1,45 @@
 /* ---------------------------
-   VARIABLES FOR THEMES
+   VARIABLES
 --------------------------- */
 :root {
-  --bg-color: #f5f5f5;       /* light background */
-  --text-color: #121212;     /* dark text */
-  --card-bg: #ffffff;        /* white cards for light theme */
-  --accent-color: #ff4757;   /* red for buttons/headings */
-  --hover-color: rgba(255, 71, 87, 0.2);
-  --input-bg: #ffffff;
-  --input-text: #121212;
+  --bg-color: #121212;         /* dark background */
+  --text-color: #ffffff;       /* main text */
+  --card-bg: #1e1e1e;          /* boxes/cards darkened to stand out */
+  --accent-color: #ff4757;     /* buttons/important highlights */
+  --hover-color: rgba(255,71,87,0.2);
+  --input-bg: #2c2c2c;
+  --input-text: #ffffff;
 }
 
-/* Dark theme overrides */
 body.light {
-  --bg-color: #121212;
-  --text-color: #ffffff;
-  --card-bg: #292929;
-  --accent-color: #ff6b81;
-  --hover-color: rgba(255, 107, 129, 0.2);
-  --input-bg: #3c3c3c;
-  --input-text: #ffffff;
+  --bg-color: #f2f2f2;
+  --text-color: #111111;
+  --card-bg: #ffffff;
+  --accent-color: #ff4757;
+  --hover-color: rgba(255,71,87,0.1);
+  --input-bg: #e0e0e0;
+  --input-text: #111111;
 }
 
 /* ---------------------------
    GLOBAL STYLES
 --------------------------- */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 body {
-  font-family: Arial, sans-serif;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
-  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
   padding: 20px;
 }
 
 /* ---------------------------
-   CONTAINER & TOP BAR
+   TOP BAR
 --------------------------- */
-.container {
-  max-width: 500px;
-  margin: auto;
-}
-
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -55,17 +48,17 @@ body {
 }
 
 .top-bar h1 {
-  font-size: 1.8em;
-  color: var(--accent-color);
+  margin: 0;
 }
 
 .top-bar button {
   padding: 5px 12px;
-  font-size: 1.2em;
-  background: var(--card-bg);
-  border: 1px solid var(--accent-color);
-  border-radius: 6px;
+  font-size: 18px;
   cursor: pointer;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: none;
+  border-radius: 5px;
 }
 
 .top-bar button:hover {
@@ -77,126 +70,130 @@ body {
 --------------------------- */
 .dashboard {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
 .stat-box {
   flex: 1;
   background-color: var(--card-bg);
   padding: 15px;
-  margin: 5px;
   border-radius: 10px;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .stat-box h3 {
-  margin-bottom: 10px;
-  color: var(--accent-color);
+  margin: 0 0 10px 0;
 }
 
 /* ---------------------------
-   SECTIONS (HABITS & STUDY)
+   SECTIONS
 --------------------------- */
 .section {
   background-color: var(--card-bg);
-  padding: 15px;
-  margin-bottom: 20px;
+  padding: 15px 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .section h2 {
-  margin-bottom: 10px;
-  color: var(--accent-color);
+  margin-top: 0;
 }
 
-.section input[type="text"],
-.section input[type="number"] {
-  width: 70%;
+/* Inputs and Buttons */
+input[type="text"], input[type="number"] {
   padding: 8px;
+  width: 60%;
   margin-right: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  border: none;
+  border-radius: 5px;
   background-color: var(--input-bg);
   color: var(--input-text);
 }
 
-.section button {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--accent-color);
+button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
   background-color: var(--accent-color);
   color: #fff;
   cursor: pointer;
 }
 
-.section button:hover {
-  opacity: 0.9;
+button:hover {
+  opacity: 0.85;
 }
 
 /* ---------------------------
    HABIT LIST
 --------------------------- */
 #habitList {
+  list-style-type: none;
+  padding-left: 0;
   margin-top: 10px;
-  list-style: none;
 }
 
 #habitList li {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
+  gap: 10px;
+  background-color: #2a2a2a; /* slightly lighter dark box */
   padding: 5px 10px;
-  background-color: var(--bg-color);
-  border-radius: 6px;
-}
-
-#habitList li input[type="checkbox"] {
-  margin-right: 10px;
-}
-
-/* ---------------------------
-   EXPORT BUTTON
---------------------------- */
-#exportBtn {
-  margin-top: 10px;
-  width: 100%;
-}
-
-/* ---------------------------
-   TEXT SPANS (STATS)
---------------------------- */
-#totalHours,
-#streakCount {
-  font-weight: bold;
-  color: var(--accent-color);
-}
-#habitList li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  background-color: var(--card-bg); /* keeps it readable in dark/light theme */
+  border-radius: 5px;
 }
 
 #habitList li span {
-  flex-grow: 1;
-  margin-left: 8px;
+  flex: 1;
 }
 
-#habitList li button {
-  background: transparent;
-  border: none;
-  color: var(--accent-color);
-  font-size: 16px;
-  cursor: pointer;
-  transition: transform 0.1s;
+/* ---------------------------
+   GOAL PROGRESS
+--------------------------- */
+#goalProgressContainer {
+  background: #3c3c3c;
+  border-radius: 10px;
+  height: 20px;
+  width: 100%;
+  margin-top: 10px;
+  overflow: hidden;
 }
 
-#habitList li button:hover {
-  transform: scale(1.2);
+#goalProgressBar {
+  height: 100%;
+  width: 0%;
+  background-color: var(--accent-color);
+  border-radius: 10px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+#goalText {
+  margin-top: 5px;
+  font-weight: bold;
+}
+
+#goalAlert {
+  font-weight: bold;
+  color: #2ecc71; /* green for goal achieved */
+  display: none;
+}
+
+/* ---------------------------
+   LIGHT / DARK THEMES EFFECT
+--------------------------- */
+body.light .section,
+body.light .stat-box,
+body.light .top-bar button,
+body.light #habitList li,
+body.light #goalProgressContainer {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+body.light input[type="text"],
+body.light input[type="number"] {
+  background-color: var(--input-bg);
+  color: var(--input-text);
    }
