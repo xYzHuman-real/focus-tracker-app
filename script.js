@@ -4,8 +4,8 @@
 let totalHours = 0;
 let streak = 0;
 let habits = [];
-let lastStudyDate = null; // Tracks last day a study session was added
-let dailyGoal = 0; // Daily study goal
+let lastStudyDate = null;
+let dailyGoal = 0;
 
 // ---------------------------
 // LOAD & SAVE DATA
@@ -34,7 +34,7 @@ function updateDashboard() {
   document.getElementById("streakCount").textContent = streak;
   document.getElementById("dashboardHours").textContent = totalHours;
   document.getElementById("dashboardStreak").textContent = streak;
-  updateGoalProgress(); // update progress bar every time dashboard updates
+  updateGoalProgress();
 }
 
 // ---------------------------
@@ -45,8 +45,6 @@ function addStudy() {
   if (input.value.trim() === "" || isNaN(input.value)) return;
 
   const today = new Date().toDateString();
-
-  // Only increment streak if it's a new day
   if (lastStudyDate !== today) {
     streak += 1;
     lastStudyDate = today;
@@ -129,6 +127,7 @@ function exportReport() {
   });
 
   report += `\nDaily Goal: ${dailyGoal} hours`;
+
   const blob = new Blob([report], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -159,6 +158,13 @@ themeToggle.addEventListener("click", () => {
   localStorage.setItem("theme", theme);
   applyTheme();
 });
+
+// ---------------------------
+// BUTTON EVENT LISTENERS
+// ---------------------------
+document.getElementById("addHabitBtn").addEventListener("click", addHabit);
+document.getElementById("addStudyBtn").addEventListener("click", addStudy);
+document.getElementById("exportBtn").addEventListener("click", exportReport);
 
 // ---------------------------
 // INITIALIZE APP
