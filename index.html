@@ -4,16 +4,30 @@
   <meta charset="UTF-8">
   <title>Focus Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style_v2.css">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase SDKs -->
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js"></script>
 </head>
 <body>
 
-  <div class="container">
+  <!-- LOGIN / SIGNUP -->
+  <div id="authContainer">
+    <h2>Login / Signup</h2>
+    <input type="email" id="emailInput" placeholder="Email">
+    <input type="password" id="passwordInput" placeholder="Password">
+    <button id="signupBtn">Sign Up</button>
+    <button id="loginBtn">Login</button>
+  </div>
 
+  <!-- MAIN APP -->
+  <div id="appContainer" style="display:none;">
     <!-- Top Bar -->
     <div class="top-bar">
       <h1>Focus Tracker</h1>
-      <button id="themeToggle">🌙</button>
+      <button id="logoutBtn">Logout</button>
     </div>
 
     <!-- Dashboard -->
@@ -51,22 +65,38 @@
       <h2>Set Daily Goal (Hours)</h2>
       <input type="number" id="dailyGoalInput" placeholder="Enter goal">
       <button id="setGoalBtn">Set Goal</button>
-
-      <!-- Goal Progress Bar -->
-      <div id="goalProgressContainer" style="margin-top: 10px; background: #ccc; border-radius: 10px; height: 20px; width: 100%;">
-        <div id="goalProgressBar" style="width: 0%; height: 100%; background-color: #ff4757; border-radius: 10px;"></div>
+      <div id="goalProgressContainer">
+        <div id="goalProgressBar"></div>
       </div>
-
-      <!-- Goal Text -->
       <p id="goalText">Goal: 0 / 0 hours</p>
-
-      <!-- Goal Alert -->
-      <p id="goalAlert" style="color: var(--accent-color); font-weight: bold; display: none;">🎉 Goal achieved!</p>
+      <p id="goalAlert">🎉 Goal achieved!</p>
     </div>
 
-  </div> <!-- End container -->
+    <!-- Community Section -->
+    <div class="section">
+      <h2>Community Groups</h2>
+      <input type="text" id="groupInput" placeholder="Enter group name">
+      <button id="createGroupBtn">Create Group</button>
+      <ul id="groupList"></ul>
+    </div>
+
+    <!-- Group Chat / Progress Sharing -->
+    <div class="section">
+      <h2>Group Feed</h2>
+      <select id="groupSelect"></select>
+      <textarea id="postInput" placeholder="Share your progress..."></textarea>
+      <button id="postBtn">Post</button>
+      <ul id="postList"></ul>
+    </div>
+
+    <!-- Notifications -->
+    <div class="section">
+      <h2>Notifications</h2>
+      <ul id="notificationsList"></ul>
+    </div>
+  </div>
 
   <!-- Script -->
-  <script src="script.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
-  </html>
+        </html>
