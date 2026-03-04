@@ -162,14 +162,18 @@ themeToggle.addEventListener("click", () => {
 // ---------------------------
 // BUTTON EVENT LISTENERS
 // ---------------------------
-document.getElementById("addHabitBtn").addEventListener("click", addHabit);
-document.getElementById("addStudyBtn").addEventListener("click", addStudy);
-document.getElementById("exportBtn").addEventListener("click", exportReport);
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("addHabitBtn").addEventListener("click", addHabit);
+  document.getElementById("addStudyBtn").addEventListener("click", addStudy);
+  document.getElementById("exportBtn").addEventListener("click", exportReport);
 
-// ---------------------------
-// INITIALIZE APP
-// ---------------------------
-loadData();
-updateDashboard();
-renderHabits();
-applyTheme();
+  document.getElementById("setGoalBtn").addEventListener("click", () => {
+    const input = document.getElementById("dailyGoalInput");
+    if (input.value.trim() === "" || isNaN(input.value)) return;
+
+    dailyGoal = parseFloat(input.value);
+    input.value = "";
+    saveData();
+    updateGoalProgress();
+  });
+});
