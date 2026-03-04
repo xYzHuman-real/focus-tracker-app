@@ -59,6 +59,8 @@ function addStudy() {
   }
 
   document.getElementById("totalHours").textContent = totalHours;
+  document.getElementById("dashboardHours").textContent = totalHours;
+  document.getElementById("dashboardStreak").textContent = streak;
   document.getElementById("streakCount").textContent = streak;
 
   input.value = "";
@@ -66,8 +68,11 @@ function addStudy() {
 }
 
 document.getElementById("totalHours").textContent = totalHours;
-renderHabits();
+document.getElementById("dashboardHours").textContent = totalHours;
+document.getElementById("dashboardStreak").textContent = streak;
 document.getElementById("streakCount").textContent = streak;
+renderHabits();
+
 const themeToggle = document.getElementById("themeToggle");
 
 function applyTheme() {
