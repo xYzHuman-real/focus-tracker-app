@@ -11,26 +11,25 @@
 
   <div class="container">
 
-    <!-- TOP BAR -->
+    <!-- Top Bar -->
     <div class="top-bar">
       <h1>Focus Tracker</h1>
       <button id="themeToggle">🌙</button>
     </div>
 
-    <!-- DASHBOARD -->
+    <!-- Dashboard -->
     <div class="dashboard">
       <div class="stat-box">
         <h3>Total Hours</h3>
         <p id="dashboardHours">0</p>
       </div>
-
       <div class="stat-box">
         <h3>🔥 Streak</h3>
         <p id="dashboardStreak">0</p>
       </div>
     </div>
 
-    <!-- HABIT SECTION -->
+    <!-- Habit Section -->
     <div class="section">
       <h2>Add Habit</h2>
       <input type="text" id="habitInput" placeholder="Enter habit">
@@ -38,7 +37,7 @@
       <ul id="habitList"></ul>
     </div>
 
-    <!-- STUDY SECTION -->
+    <!-- Study Section -->
     <div class="section">
       <h2>Add Study Session (Hours)</h2>
       <input type="number" id="studyInput" placeholder="Enter hours">
@@ -48,8 +47,19 @@
       <button id="exportBtn">📄 Export Report</button>
     </div>
 
+    <!-- Daily Goal Section -->
+    <div class="section">
+      <h2>Set Daily Goal (Hours)</h2>
+      <input type="number" id="dailyGoalInput" placeholder="Enter goal">
+      <button id="setGoalBtn">Set Goal</button>
+      <div id="goalProgressContainer" style="margin-top: 10px;">
+        <div id="goalProgressBar" style="width: 0%; height: 20px; background-color: #ff4757; border-radius: 10px;"></div>
+      </div>
+      <p id="goalText">Goal: 0 / 0 hours</p>
+    </div>
+
   </div>
 
   <script src="script.js"></script>
 </body>
-</html>
+        </html>
