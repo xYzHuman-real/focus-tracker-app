@@ -191,6 +191,19 @@ document.addEventListener("DOMContentLoaded", () => {
   applyTheme();
 
   // Button listeners
+  document.addEventListener("DOMContentLoaded", () => {
+  // 1️⃣ Load saved data
+  loadData();
+
+  // 2️⃣ Update the HTML with saved values
+  updateDashboard();
+  renderHabits();
+  updateGoalProgress();
+
+  // 3️⃣ Apply theme
+  applyTheme();
+
+  // 4️⃣ Set up button event listeners
   document.getElementById("addHabitBtn").addEventListener("click", addHabit);
   document.getElementById("addStudyBtn").addEventListener("click", addStudy);
   document.getElementById("exportBtn").addEventListener("click", exportReport);
