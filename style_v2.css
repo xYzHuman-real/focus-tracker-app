@@ -2,13 +2,14 @@
    Variables (Colors & Theme)
 --------------------------- */
 :root {
-  --bg-color: #121212; /* page background */
-  --text-color: #ffffff; /* general text */
-  --card-bg: #292929; /* dashboard & habit cards */
-  --accent-color: #ff4757; /* headings, numbers, buttons */
-  --hover-color: rgba(255, 71, 87, 0.2); /* hover for cards */
-  --input-bg: #3c3c3c;
-  --input-text: #ffffff;
+  /* Dark Theme (default) */
+  --bg-color: #121212;        /* page background */
+  --text-color: #ffffff;       /* general text */
+  --card-bg: #1f1f2f;          /* slightly lighter boxes */
+  --accent-color: #ff4757;     /* headings, numbers, buttons */
+  --hover-color: rgba(255, 71, 87, 0.25); /* hover for cards */
+  --input-bg: #2c2c3f;         /* input boxes */
+  --input-text: #ffffff;       
 }
 
 /* --------------------------
@@ -56,7 +57,7 @@ body {
 }
 
 .stat-box {
-  background-color: var(--card-bg); /* variable now */
+  background-color: var(--card-bg);
   padding: 15px;
   border-radius: 12px;
   width: 48%;
@@ -124,7 +125,7 @@ body {
   align-items: center;
   gap: 10px;
   padding: 10px;
-  background: var(--card-bg); /* variable now */
+  background: var(--card-bg);
   border-radius: 10px;
   margin-top: 10px;
   cursor: pointer;
@@ -132,7 +133,7 @@ body {
 }
 
 #habitList li:hover {
-  background: var(--hover-color); /* variable for hover */
+  background: var(--hover-color);
 }
 
 #habitList input[type="checkbox"] {
