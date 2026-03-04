@@ -4,7 +4,7 @@
 let totalHours = 0;
 let streak = 0;
 let habits = [];
-let lastStudyDate = null; // Tracks last day a study session was added
+let lastStudyDate = null; // Tracks the last day a study session was added
 
 // ---------------------------
 // LOAD & SAVE DATA
@@ -43,7 +43,7 @@ function addStudy() {
 
   const today = new Date().toDateString(); // e.g., "Wed Mar 04 2026"
 
-  // Increase streak only if it's a new day
+  // Increase streak only once per day
   if (lastStudyDate !== today) {
     streak += 1;
     lastStudyDate = today;
