@@ -88,3 +88,29 @@ li {
   background: transparent;
   font-size: 18px;
   }
+.dashboard {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.stat-box {
+  flex: 1;
+  background: var(--card-bg);
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.stat-box h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.stat-box p {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 8px;
+  }
