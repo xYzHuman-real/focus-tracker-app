@@ -179,6 +179,18 @@ themeToggle.addEventListener("click", () => {
 // BUTTON EVENT LISTENERS
 // ---------------------------
 document.addEventListener("DOMContentLoaded", () => {
+  // Load data from localStorage
+  loadData();
+
+  // Update dashboard and habits
+  updateDashboard();
+  renderHabits();
+  updateGoalProgress();
+
+  // Theme
+  applyTheme();
+
+  // Button listeners
   document.getElementById("addHabitBtn").addEventListener("click", addHabit);
   document.getElementById("addStudyBtn").addEventListener("click", addStudy);
   document.getElementById("exportBtn").addEventListener("click", exportReport);
