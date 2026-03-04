@@ -1,3 +1,4 @@
+let theme = localStorage.getItem("theme") || "dark";
 let habits = JSON.parse(localStorage.getItem("habits")) || [];
 let totalHours = JSON.parse(localStorage.getItem("totalHours")) || 0;
 let streak = JSON.parse(localStorage.getItem("streak")) || 0;
@@ -67,3 +68,22 @@ function addStudy() {
 document.getElementById("totalHours").textContent = totalHours;
 renderHabits();
 document.getElementById("streakCount").textContent = streak;
+const themeToggle = document.getElementById("themeToggle");
+
+function applyTheme() {
+  if (theme === "light") {
+    document.body.classList.add("light");
+    themeToggle.textContent = "☀";
+  } else {
+    document.body.classList.remove("light");
+    themeToggle.textContent = "🌙";
+  }
+}
+
+themeToggle.addEventListener("click", () => {
+  theme = theme === "dark" ? "light" : "dark";
+  localStorage.setItem("theme", theme);
+  applyTheme();
+});
+
+applyTheme();
