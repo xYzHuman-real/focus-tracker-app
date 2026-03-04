@@ -113,19 +113,21 @@ function renderHabits() {
 // ---------------------------
 function updateGoalProgress() {
   const progress = dailyGoal ? Math.min((totalHours / dailyGoal) * 100, 100) : 0;
-  document.getElementById("goalProgressBar").style.width = progress + "%";
+  const progressBar = document.getElementById("goalProgressBar");
+  const alert = document.getElementById("goalAlert");
+
+  progressBar.style.width = progress + "%";
+
+  if (progress >= 100) {
+    progressBar.style.backgroundColor = "#2ecc71"; // green when goal reached
+    alert.style.display = "block"; // show alert
+  } else {
+    progressBar.style.backgroundColor = "#ff4757"; // normal red
+    alert.style.display = "none"; // hide alert
+  }
+
   document.getElementById("goalText").textContent = `Goal: ${totalHours} / ${dailyGoal} hours`;
 }
-
-document.getElementById("setGoalBtn").addEventListener("click", () => {
-  const input = document.getElementById("dailyGoalInput");
-  if (input.value.trim() === "" || isNaN(input.value)) return;
-
-  dailyGoal = parseFloat(input.value);
-  input.value = "";
-  saveData();
-  updateGoalProgress();
-});
 
 // ---------------------------
 // EXPORT REPORT
