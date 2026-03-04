@@ -76,20 +76,34 @@ function renderHabits() {
 
   habits.forEach((habit, index) => {
     const li = document.createElement("li");
+
+    // Checkbox
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = habit.completed;
-
     checkbox.addEventListener("change", () => {
       habits[index].completed = checkbox.checked;
       saveData();
     });
 
+    // Habit Name
     const span = document.createElement("span");
     span.textContent = habit.name;
 
+    // Delete Button
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "❌";
+    deleteBtn.style.marginLeft = "10px";
+    deleteBtn.addEventListener("click", () => {
+      habits.splice(index, 1); // Remove this habit
+      saveData();
+      renderHabits(); // Re-render the list
+    });
+
+    // Append everything to li
     li.appendChild(checkbox);
     li.appendChild(span);
+    li.appendChild(deleteBtn);
     habitList.appendChild(li);
   });
 }
