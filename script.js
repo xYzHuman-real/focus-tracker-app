@@ -92,3 +92,25 @@ themeToggle.addEventListener("click", () => {
 });
 
 applyTheme();
+document.getElementById("exportBtn").addEventListener("click", () => {
+  let report = "Focus Tracker Report\n\n";
+  
+  // Total Hours and Streak
+  report += `Total Study Hours: ${totalHours}\n`;
+  report += `Daily Streak: ${streak}\n\n`;
+
+  // List habits
+  report += "Habits:\n";
+  habits.forEach((habit, index) => {
+    report += `${index + 1}. ${habit.name} - ${habit.completed ? "✅" : "❌"}\n`;
+  });
+
+  // Create file and download
+  const blob = new Blob([report], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "Focus_Tracker_Report.txt";
+  a.click();
+  URL.revokeObjectURL(url);
+});
