@@ -5,55 +5,51 @@
   <title>Focus Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script>
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "light") {
-      document.addEventListener("DOMContentLoaded", function() {
-        document.body.classList.add("light");
-      });
-    }
-  </script>
-
   <link rel="stylesheet" href="style_v2.css">
 </head>
 <body>
 
   <div class="container">
 
-  <div class="top-bar">
-    <h1>Focus Tracker</h1>
-    <button id="themeToggle">🌙</button>
-  </div>
-
-  <div class="dashboard">
-    <div class="stat-box">
-      <h3>Total Hours</h3>
-      <p id="dashboardHours">0</p>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <h1>Focus Tracker</h1>
+      <button id="themeToggle">🌙</button>
     </div>
 
-    <div class="stat-box">
-      <h3>🔥 Streak</h3>
-      <p id="dashboardStreak">0</p>
-    </div>
-  </div>
+    <!-- DASHBOARD -->
+    <div class="dashboard">
+      <div class="stat-box">
+        <h3>Total Hours</h3>
+        <p id="dashboardHours">0</p>
+      </div>
 
+      <div class="stat-box">
+        <h3>🔥 Streak</h3>
+        <p id="dashboardStreak">0</p>
+      </div>
+    </div>
+
+    <!-- HABIT SECTION -->
     <div class="section">
       <h2>Add Habit</h2>
       <input type="text" id="habitInput" placeholder="Enter habit">
-      <button onclick="addHabit()">Add Habit</button>
+      <button id="addHabitBtn">Add Habit</button>
       <ul id="habitList"></ul>
     </div>
 
+    <!-- STUDY SECTION -->
     <div class="section">
       <h2>Add Study Session (Hours)</h2>
       <input type="number" id="studyInput" placeholder="Enter hours">
-      <button onclick="addStudy()">Add Study</button>
+      <button id="addStudyBtn">Add Study</button>
       <p>Total Study Hours: <span id="totalHours">0</span></p>
-<p>🔥 Daily Streak: <span id="streakCount">0</span> days</p>
+      <p>🔥 Daily Streak: <span id="streakCount">0</span> days</p>
       <button id="exportBtn">📄 Export Report</button>
     </div>
+
   </div>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
-        </html>
+</html>
