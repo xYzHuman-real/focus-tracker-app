@@ -1,8 +1,9 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getDatabase, ref, set, get, update, push, onValue } from "firebase/database";
+// Firebase imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
 
-// ---------- Firebase ----------
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyD0txpbZjCwn6TSWF6rCnPlq46th9L-N5w",
   authDomain: "focustrackerapp-c3b36.firebaseapp.com",
@@ -11,125 +12,178 @@ const firebaseConfig = {
   messagingSenderId: "985621079314",
   appId: "1:985621079314:web:a5f8661196d5e353d5ffcb"
 };
+
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
-const db = getDatabase(app);
+const db = getFirestore();
 
-let currentUser = null;
-let totalHours = 0, streak = 0, habits = [], dailyGoal = 0;
+let userData = { totalHours:0, streak:0, habits:[], dailyGoal:0 };
 
-// ---------- AUTH ----------
-document.getElementById("signupBtn").addEventListener("click",()=>{
-  const email=document.getElementById("emailInput").value;
-  const password=document.getElementById("passwordInput").value;
-  createUserWithEmailAndPassword(auth,email,password)
-    .then(cred=>{ currentUser=cred.user; set(ref(db,'users/'+currentUser.uid),{totalHours:0,streak:0,habits:[],dailyGoal:0}); showApp(); })
-    .catch(e=>alert(e.message));
+// ---------------------------
+// DOM Elements
+// ---------------------------
+const authSection = document.getElementById("authSection");
+const mainSection = document.getElementById("mainSection");
+const emailInput = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
+const loginBtn = document.getElementById("loginBtn");
+const signupBtn = document.getElementById("signupBtn");
+const authMessage = document.getElementById("authMessage");
+
+const profileEmail = document.getElementById("profileEmail");
+const displayNameInput = document.getElementById("displayNameInput");
+const updateProfileBtn = document.getElementById("updateProfileBtn");
+
+const totalHoursEl = document.getElementById("totalHours");
+const streakEl = document.getElementById("streakCount");
+const dashboardHours = document.getElementById("dashboardHours");
+const dashboardStreak = document.getElementById("dashboardStreak");
+const studyInput = document.getElementById("studyInput");
+const addStudyBtn = document.getElementById("addStudyBtn");
+const dailyGoalInput = document.getElementById("dailyGoalInput");
+const setGoalBtn = document.getElementById("setGoalBtn");
+const goalProgressBar = document.getElementById("goalProgressBar");
+const goalText = document.getElementById("goalText");
+const goalAlert = document.getElementById("goalAlert");
+const exportBtn = document.getElementById("exportBtn");
+
+const postInput = document.getElementById("postInput");
+const postBtn = document.getElementById("postBtn");
+const postList = document.getElementById("postList");
+
+const themeToggle = document.getElementById("themeToggle");
+const logoutBtn = document.getElementById("logoutBtn");
+
+// ---------------------------
+// Auth Handlers
+// ---------------------------
+signupBtn.addEventListener("click", async () => {
+  const email = emailInput.value;
+  const pass = passwordInput.value;
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await setDoc(doc(db,"users",cred.user.uid), userData);
+    authMessage.textContent = "Sign Up Successful!";
+  } catch(e) { authMessage.textContent = e.message; }
 });
 
-document.getElementById("loginBtn").addEventListener("click",()=>{
-  const email=document.getElementById("emailInput").value;
-  const password=document.getElementById("passwordInput").value;
-  signInWithEmailAndPassword(auth,email,password)
-    .then(cred=>{ currentUser=cred.user; showApp(); })
-    .catch(e=>alert(e.message));
+loginBtn.addEventListener("click", async () => {
+  const email = emailInput.value;
+  const pass = passwordInput.value;
+  try {
+    await signInWithEmailAndPassword(auth,email,pass);
+  } catch(e){ authMessage.textContent = e.message; }
 });
 
-document.getElementById("logoutBtn").addEventListener("click",()=>{ signOut(auth).then(()=>location.reload()); });
+logoutBtn.addEventListener("click", ()=>{ signOut(auth); });
 
-// ---------- LOAD USER ----------
-function showApp(){ document.getElementById("authContainer").style.display="none"; document.getElementById("appContainer").style.display="block"; loadUserData(); }
+// ---------------------------
+// Auth State
+// ---------------------------
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    authSection.style.display="none";
+    mainSection.style.display="block";
+    profileEmail.textContent = user.email;
+    displayNameInput.value = user.displayName||"";
+    const docSnap = await getDoc(doc(db,"users",user.uid));
+    if(docSnap.exists()) userData = docSnap.data();
+    updateDashboard();
+    loadCommunity();
+  } else {
+    authSection.style.display="block";
+    mainSection.style.display="none";
+  }
+});
 
-function loadUserData(){
-  if(!currentUser) return;
-  get(ref(db,'users/'+currentUser.uid)).then(snap=>{
-    if(snap.exists()){ const d=snap.val(); totalHours=d.totalHours||0; streak=d.streak||0; habits=d.habits||[]; dailyGoal=d.dailyGoal||0; updateDashboard(); renderHabits(); updateGoalProgress(); }
-  });
+// ---------------------------
+// Profile Update
+// ---------------------------
+updateProfileBtn.addEventListener("click", async ()=>{
+  if(auth.currentUser){
+    await updateProfile(auth.currentUser,{displayName:displayNameInput.value});
+    alert("Profile Updated!");
+  }
+});
+
+// ---------------------------
+// Dashboard Functions
+// ---------------------------
+function updateDashboard(){
+  totalHoursEl.textContent = userData.totalHours||0;
+  streakEl.textContent = userData.streak||0;
+  dashboardHours.textContent = userData.totalHours||0;
+  dashboardStreak.textContent = userData.streak||0;
+  goalText.textContent = `Goal: ${userData.totalHours||0} / ${userData.dailyGoal||0} hours`;
+  goalProgressBar.style.width = userData.dailyGoal?Math.min(userData.totalHours/userData.dailyGoal*100,100)+"%":"0%";
+  goalAlert.style.display = (userData.dailyGoal && userData.totalHours>=userData.dailyGoal)?"block":"none";
 }
 
-function saveUserData(){ if(!currentUser) return; update(ref(db,'users/'+currentUser.uid),{totalHours,streak,habits,dailyGoal}); }
-
-// ---------- DASHBOARD ----------
-function updateDashboard(){ document.getElementById("totalHours").textContent=totalHours; document.getElementById("streakCount").textContent=streak; }
-
-// ---------- HABITS ----------
-function addHabit(name){ if(!name) return; habits.push({name,completed:false}); saveUserData(); renderHabits(); }
-function renderHabits(){
-  const l=document.getElementById("habitList"); l.innerHTML="";
-  habits.forEach((h,i)=>{
-    const li=document.createElement("li");
-    const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=h.completed;
-    cb.addEventListener("change",()=>{ habits[i].completed=cb.checked; saveUserData(); });
-    const span=document.createElement("span"); span.textContent=h.name;
-    const del=document.createElement("button"); del.textContent="❌"; del.addEventListener("click",()=>{ habits.splice(i,1); saveUserData(); renderHabits(); });
-    li.appendChild(cb); li.appendChild(span); li.appendChild(del); l.appendChild(li);
-  });
-}
-
-// ---------- STUDY ----------
-function addStudy(hours){
-  const today=new Date().toDateString();
-  if(!localStorage.getItem('lastStudyDate') || localStorage.getItem('lastStudyDate')!==today){ streak+=1; localStorage.setItem('lastStudyDate',today); }
-  totalHours+=parseFloat(hours); saveUserData(); updateDashboard(); updateGoalProgress();
-}
-
-// ---------- GOAL ----------
-function setDailyGoal(goal){ dailyGoal=parseFloat(goal); saveUserData(); updateGoalProgress(); }
-function updateGoalProgress(){
-  const p=dailyGoal?Math.min(totalHours/dailyGoal*100,100):0;
-  const bar=document.getElementById("goalProgressBar");
-  const text=document.getElementById("goalText");
-  const alert=document.getElementById("goalAlert");
-  bar.style.width=p+"%"; text.textContent=`Goal: ${totalHours} / ${dailyGoal} hours`; alert.style.display=p>=100?"block":"none";
-}
-
-// ---------- COMMUNITY ----------
-const groupRef=ref(db,'groups/');
-document.getElementById("createGroupBtn").addEventListener("click",()=>{
-  const name=document.getElementById("groupInput").value; if(!name) return;
-  push(groupRef,{name,createdBy:currentUser.uid}); document.getElementById("groupInput").value="";
+// ---------------------------
+// Study Tracker
+// ---------------------------
+addStudyBtn.addEventListener("click", async ()=>{
+  const val = parseFloat(studyInput.value);
+  if(!val) return;
+  const today = new Date().toDateString();
+  if(userData.lastStudyDate!==today){ userData.streak=(userData.streak||0)+1; userData.lastStudyDate=today; }
+  userData.totalHours=(userData.totalHours||0)+val;
+  studyInput.value="";
+  await setDoc(doc(db,"users",auth.currentUser.uid),userData);
+  updateDashboard();
 });
 
-onValue(groupRef,snap=>{
-  const list=document.getElementById("groupList"); const select=document.getElementById("groupSelect");
-  list.innerHTML=""; select.innerHTML="";
-  snap.forEach(s=>{
-    const g=s.val(); const id=s.key;
-    const li=document.createElement("li"); li.textContent=g.name; list.appendChild(li);
-    const opt=document.createElement("option"); opt.value=id; opt.textContent=g.name; select.appendChild(opt);
-  });
+// ---------------------------
+// Daily Goal
+// ---------------------------
+setGoalBtn.addEventListener("click", async ()=>{
+  const val = parseFloat(dailyGoalInput.value);
+  if(!val) return;
+  userData.dailyGoal = val;
+  dailyGoalInput.value="";
+  await setDoc(doc(db,"users",auth.currentUser.uid),userData);
+  updateDashboard();
 });
 
-// ---------- POSTS & NOTIFICATIONS ----------
-document.getElementById("postBtn").addEventListener("click",()=>{
-  const groupId=document.getElementById("groupSelect").value;
-  const msg=document.getElementById("postInput").value; if(!groupId || !msg) return;
-  push(ref(db,'posts/'+groupId),{user:currentUser.email,msg,date:new Date().toLocaleString()});
-  document.getElementById("postInput").value="";
+// ---------------------------
+// Export Report
+// ---------------------------
+exportBtn.addEventListener("click", ()=>{
+  let report=`Focus Tracker Report\n\nTotal Hours: ${userData.totalHours}\nStreak: ${userData.streak}\nDaily Goal: ${userData.dailyGoal}\n`;
+  const blob = new Blob([report],{type:"text/plain"});
+  const a = document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="Focus_Tracker_Report.txt";
+  a.click();
+  URL.revokeObjectURL(a.href);
 });
 
-onValue(ref(db,'posts/'),snap=>{
-  const list=document.getElementById("postList"); const notif=document.getElementById("notificationsList"); list.innerHTML=""; notif.innerHTML="";
-  snap.forEach(gSnap=>{
-    gSnap.forEach(pSnap=>{
-      const d=pSnap.val(); const li=document.createElement("li");
-      li.textContent=`[${d.date}] ${d.user}: ${d.msg}`; list.appendChild(li);
-
-      // Notification for posts not by current user
-      if(d.user!==currentUser.email){
-        const nli=document.createElement("li"); nli.textContent=`New post in ${gSnap.key} by ${d.user}`; notif.appendChild(nli);
-      }
+// ---------------------------
+// Community
+// ---------------------------
+async function loadCommunity(){
+  const q = query(collection(db,"posts"),orderBy("timestamp","desc"));
+  onSnapshot(q,(snap)=>{
+    postList.innerHTML="";
+    snap.forEach(doc=>{
+      const li = document.createElement("li");
+      li.textContent=`${doc.data().author}: ${doc.data().content}`;
+      postList.appendChild(li);
     });
   });
+}
+
+postBtn.addEventListener("click", async ()=>{
+  const val = postInput.value;
+  if(!val) return;
+  await addDoc(collection(db,"posts"),{author:auth.currentUser.displayName||auth.currentUser.email, content:val, timestamp: new Date()});
+  postInput.value="";
 });
 
-// ---------- BUTTONS ----------
-document.getElementById("addHabitBtn").addEventListener("click",()=>{ addHabit(document.getElementById("habitInput").value); document.getElementById("habitInput").value=""; });
-document.getElementById("addStudyBtn").addEventListener("click",()=>{ addStudy(document.getElementById("studyInput").value); document.getElementById("studyInput").value=""; });
-document.getElementById("setGoalBtn").addEventListener("click",()=>{ setDailyGoal(document.getElementById("dailyGoalInput").value); document.getElementById("dailyGoalInput").value=""; });
-document.getElementById("exportBtn").addEventListener("click",()=>{
-  let report=`Total Hours: ${totalHours}\nStreak: ${streak}\nDaily Goal: ${dailyGoal}\nHabits:\n`;
-  habits.forEach((h,i)=>report+=`${i+1}. ${h.name} - ${h.completed?'✅':'❌'}\n`);
-  const blob=new Blob([report],{type:"text/plain"});
-  const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="Focus_Tracker_Report.txt"; a.click(); URL.revokeObjectURL(url);
+// ---------------------------
+// Theme
+// ---------------------------
+themeToggle.addEventListener("click", ()=>{
+  document.body.classList.toggle("light");
 });
