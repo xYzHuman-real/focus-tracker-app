@@ -1,68 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Focus Tracker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style_v2.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Tracker | Ultimate Productivity</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --sidebar-color: #1e293b;
+            --accent-color: #38bdf8;
+            --text-color: #f8fafc;
+            --card-bg: #334155;
+            --border-color: #475569;
+            --transition: all 0.3s ease;
+        }
+
+        :root.light-theme {
+            --bg-color: #f1f5f9;
+            --sidebar-color: #ffffff;
+            --accent-color: #0ea5e9;
+            --text-color: #1e293b;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; transition: var(--transition); }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-color); overflow: hidden; }
+
+        .app-container { display: flex; height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { width: 260px; background: var(--sidebar-color); padding: 25px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .sidebar h2 { color: var(--accent-color); margin-bottom: 30px; font-size: 1.5rem; }
+        .sidebar ul { list-style: none; padding: 0; flex: 1; }
+        .sidebar li { padding: 12px 15px; cursor: pointer; border-radius: 10px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .sidebar li:hover, .sidebar li.active { background: var(--accent-color); color: white; }
+        
+        /* Main Content */
+        .content { flex: 1; padding: 40px; overflow-y: auto; }
+        .view { display: none; animation: fadeIn 0.4s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Dashboard Components */
+        .goal-container { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 1px solid var(--border-color); }
+        .progress-bar-bg { width: 100%; height: 12px; background: var(--bg-color); border-radius: 6px; overflow: hidden; margin: 15px 0; }
+        #progress-fill { height: 100%; width: 0%; background: var(--accent-color); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); }
+
+        /* Pomodoro */
+        .timer-display { font-size: 6rem; font-weight: 800; text-align: center; margin: 40px 0; font-variant-numeric: tabular-nums; }
+        .timer-controls { display: flex; justify-content: center; gap: 15px; }
+        button { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: var(--accent-color); color: white; }
+        button.secondary { background: var(--border-color); }
+        .delete-btn { background: #ef4444; padding: 5px 10px; font-size: 0.8rem; }
+
+        /* Community & Chat */
+        .chat-box { height: 200px; background: var(--bg-color); border-radius: 8px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .message { padding: 8px 12px; border-radius: 12px; font-size: 0.85rem; max-width: 80%; }
+        .message.other { background: var(--card-bg); align-self: flex-start; }
+        .message.user { background: var(--accent-color); color: white; align-self: flex-end; }
+        
+        .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .leaderboard-table td, th { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+
+        input { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); }
+    </style>
 </head>
 <body>
 
-  <!-- Auth Section -->
-  <div class="container" id="authSection">
-    <h2>Login / Sign Up</h2>
-    <input type="email" id="emailInput" placeholder="Email">
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button id="loginBtn">Login</button>
-    <button id="signupBtn">Sign Up</button>
-    <p id="authMessage"></p>
-  </div>
+    <div class="app-container">
+        <nav class="sidebar">
+            <h2><i class="fas fa-bullseye"></i> Focus</h2>
+            <ul>
+                <li onclick="showSection('dashboard')" class="nav-item active"><i class="fas fa-home"></i> Dashboard</li>
+                <li onclick="showSection('pomodoro')" class="nav-item"><i class="fas fa-clock"></i> Pomodoro</li>
+                <li onclick="showSection('habits')" class="nav-item"><i class="fas fa-check-circle"></i> Habits</li>
+                <li onclick="showSection('community')" class="nav-item"><i class="fas fa-users"></i> Community</li>
+            </ul>
+            <button onclick="toggleTheme()" id="theme-btn" class="secondary"><i class="fas fa-moon"></i> Dark Mode</button>
+        </nav>
 
-  <!-- Main App Section -->
-  <div class="container" id="mainSection" style="display:none;">
+        <main class="content">
+            <section id="dashboard" class="view active">
+                <h1>Dashboard</h1>
+                <div class="goal-container">
+                    <h3>Daily Goal: <span id="goal-status">0/4</span> Sessions</h3>
+                    <div class="progress-bar-bg"><div id="progress-fill"></div></div>
+                    <input type="number" id="goal-input" placeholder="Set Goal" style="width: 80px;">
+                    <button onclick="setNewGoal()">Set</button>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><h3>Focus Hours</h3><p id="focus-hours">0h</p></div>
+                    <div class="stat-card"><h3>Goal Met</h3><p id="goals-percent">0%</p></div>
+                    <div class="stat-card"><h3>Streak</h3><p>5 Days</p></div>
+                </div>
+            </section>
 
-    <!-- Top Bar -->
-    <div class="top-bar">
-      <h1>Focus Tracker</h1>
-      <button id="themeToggle">🌙</button>
-      <button id="logoutBtn">Logout</button>
+            <section id="pomodoro" class="view">
+                <h1 style="text-align:center;">Study Timer</h1>
+                <div class="timer-display" id="timer-display">25:00</div>
+                <div class="timer-controls">
+                    <button id="start-btn" onclick="toggleTimer()">Start Session</button>
+                    <button class="secondary" onclick="resetTimer()">Reset</button>
+                </div>
+            </section>
+
+            <section id="habits" class="view">
+                <h1>Habit Tracker</h1>
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="habit-input" placeholder="Enter new habit...">
+                    <button onclick="addHabit()">Add Habit</button>
+                </div>
+                <div id="habit-list"></div>
+            </section>
+
+            <section id="community" class="view">
+                <h1>Community</h1>
+                <div class="goal-container">
+                    <h3>Global Leaderboard</h3>
+                    <table class="leaderboard-table">
+                        <tbody id="leaderboard-body"></tbody>
+                    </table>
+                </div>
+                <h3>Study Group Chat</h3>
+                <div id="chat-box" class="chat-box"></div>
+                <div style="margin-top:10px; display:flex; gap:10px;">
+                    <input type="text" id="chat-input" placeholder="Send a message..." style="flex:1;">
+                    <button onclick="sendUserMessage()">Send</button>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <!-- Dashboard -->
-    <div class="dashboard">
-      <div class="stat-box">
-        <h3>Total Hours</h3>
-        <p id="dashboardHours">0</p>
-      </div>
-      <div class="stat-box">
-        <h3>🔥 Streak</h3>
-        <p id="dashboardStreak">0</p>
-      </div>
-    </div>
+    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
-    <!-- Study Section -->
-    <div class="section">
-      <h2>Add Study Session (Hours)</h2>
-      <input type="number" id="studyInput" placeholder="Enter hours">
-      <button id="addStudyBtn">Add Study</button>
-      <p>Total Study Hours: <span id="totalHours">0</span></p>
-      <p>🔥 Daily Streak: <span id="streakCount">0</span> days</p>
-    </div>
+    <script>
+        // 1. DATA STATE
+        let appData = JSON.parse(localStorage.getItem('focusTrackerData')) || {
+            theme: 'dark',
+            sessionsCompleted: 0,
+            dailyGoal: 4,
+            habits: [],
+            streak: 5
+        };
 
-    <!-- Daily Goal Section -->
-    <div class="section">
-      <h2>Set Daily Goal (Hours)</h2>
-      <input type="number" id="dailyGoalInput" placeholder="Enter goal">
-      <button id="setGoalBtn">Set Goal</button>
-      <div id="goalProgressContainer">
-        <div id="goalProgressBar"></div>
-      </div>
-      <p id="goalText">Goal: 0 / 0 hours</p>
-      <p id="goalAlert" style="display:none;">🎉 Goal achieved!</p>
-    </div>
+        // 2. CORE UTILITIES
+        function save() { localStorage.setItem('focusTrackerData', JSON.stringify(appData)); }
 
-  </div>
+        function showSection(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
 
-  <script type="module" src="script.js"></script>
+        // 3. TIMER LOGIC
+        let timeLeft = 1500;
+        let timerId = null;
+
+        function toggleTimer() {
+            const btn = document.getElementById('start-btn');
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+                btn.textContent = "Start Session";
+            } else {
+                btn.textContent = "Pause Session";
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerId);
+                        document.getElementById('alarm-sound').play();
+                        appData.sessionsCompleted++;
+                        save();
+                        refreshUI();
+                        alert("Session complete!");
+                        resetTimer();
+                    }
+                }, 1000);
+            }
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('timer-display').textContent = `${m}:${s < 10 ? '0'+s : s}`;
+        }
+
+        function resetTimer() {
+            clearInterval(timerId);
+            timerId = null;
+            timeLeft = 1500;
+            updateTimerDisplay();
+            document.getElementById('start-btn').textContent = "Start Session";
+        }
+
+        // 4. HABITS & GOALS
+        function addHabit() {
+            const val = document.getElementById('habit-input').value;
+            if(!val) return;
+            appData.habits.push({id: Date.now(), text: val});
+            document.getElementById('habit-input').value = '';
+            save(); refreshUI();
+        }
+
+        function deleteHabit(id) {
+            appData.habits = appData.habits.filter(h => h.id !== id);
+            save(); refreshUI();
+        }
+
+        function setNewGoal() {
+            const val = document.getElementById('goal-input').value;
+            if(val > 0) { appData.dailyGoal = val; save(); refreshUI(); }
+        }
+
+        // 5. UI REFRESH
+        function refreshUI() {
+            // Dashboard
+            document.getElementById('goal-status').textContent = `${appData.sessionsCompleted}/${appData.dailyGoal}`;
+            const percent = Math.min((appData.sessionsCompleted / appData.dailyGoal) * 100, 100);
+            document.getElementById('progress-fill').style.width = percent + "%";
+            document.getElementById('goals-percent').textContent = Math.round(percent) + "%";
+            document.getElementById('focus-hours').textContent = ((appData.sessionsCompleted * 25)/60).toFixed(1) + "h";
+
+            // Habits
+            document.getElementById('habit-list').innerHTML = appData.habits.map(h => `
+                <div class="stat-card" style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span>${h.text}</span>
+                    <button class="delete-btn" onclick="deleteHabit(${h.id})">Delete</button>
+                </div>
+            `).join('');
+
+            // Leaderboard
+            const mock = [{n:"ZenCoder", h:22}, {n:"StudyBeast", h:18}, {n:"You", h:((appData.sessionsCompleted * 25)/60)}];
+            mock.sort((a,b) => b.h - a.h);
+            document.getElementById('leaderboard-body').innerHTML = mock.map((u, i) => `
+                <tr><td>#${i+1}</td><td>${u.n}</td><td>${u.h.toFixed(1)}h</td></tr>
+            `).join('');
+        }
+
+        // 6. THEME & CHAT
+        function toggleTheme() {
+            appData.theme = appData.theme === 'dark' ? 'light' : 'dark';
+            document.documentElement.className = appData.theme + '-theme';
+            document.getElementById('theme-btn').innerHTML = appData.theme === 'dark' ? '<i class="fas fa-moon"></i> Dark' : '<i class="fas fa-sun"></i> Light';
+            save();
+        }
+
+        function sendUserMessage() {
+            const inp = document.getElementById('chat-input');
+            if(!inp.value) return;
+            const box = document.getElementById('chat-box');
+            box.innerHTML += `<div class="message user"><strong>You:</strong> ${inp.value}</div>`;
+            inp.value = '';
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // Init
+        window.onload = () => {
+            if(appData.theme === 'light') document.documentElement.className = 'light-theme';
+            refreshUI();
+            updateTimerDisplay();
+        };
+    </script>
 </body>
   </html>
+  
