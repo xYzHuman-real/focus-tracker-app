@@ -3,134 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusTracker Pro | Cloud Sync</title>
+    <title>FocusTracker | Ultimate Cloud</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --accent-teal: #10b981;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --danger: #ef4444;
+            --bg-dark: #0f172a; --card-bg: #1e293b; --accent-teal: #10b981;
+            --text-main: #f8fafc; --text-dim: #94a3b8; --danger: #ef4444;
         }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: 0.2s ease; }
+        body { background: var(--bg-dark); color: var(--text-main); margin: 0; padding-bottom: 100px; }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; transition: 0.2s ease; }
-        body { background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding-bottom: 100px; overflow-x: hidden; }
-
-        /* Auth Screen */
-        #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .auth-card { background: var(--card-bg); padding: 35px; border-radius: 25px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-
-        /* Views */
+        /* Auth & Overlay */
+        #auth-overlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: var(--card-bg); padding: 35px; border-radius: 25px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; }
+        
+        /* Layout */
         .view { display: none; padding: 20px; animation: fadeIn 0.4s ease; }
         .view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
 
-        /* Stats & Cards */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        /* UI Components */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .stat-card { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid #334155; }
-        .stat-val { font-size: 26px; font-weight: 800; display: block; color: var(--accent-teal); }
-        .stat-label { color: var(--text-dim); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-val { font-size: 26px; font-weight: 800; color: var(--accent-teal); display: block; }
+        .stat-label { color: var(--text-dim); font-size: 11px; text-transform: uppercase; }
 
-        /* Chart */
-        .chart-section { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid #334155; margin-top: 20px; }
-        .chart-bars { display: flex; justify-content: space-between; align-items: flex-end; height: 100px; margin-top: 15px; }
-        .bar { width: 12%; background: #334155; border-radius: 5px; }
-        .bar.active { background: var(--accent-teal); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+        /* Pomodoro Timer */
+        .timer-circle { width: 200px; height: 200px; border: 8px solid #334155; border-top-color: var(--accent-teal); border-radius: 50%; margin: 30px auto; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 800; }
+        
+        /* Chat Box */
+        #chat-box { height: 300px; background: #0f172a; border-radius: 15px; padding: 15px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #334155; }
+        .msg { padding: 10px; border-radius: 12px; font-size: 13px; max-width: 85%; }
+        .msg.me { background: var(--accent-teal); align-self: flex-end; color: white; }
+        .msg.them { background: var(--card-bg); align-self: flex-start; }
 
-        /* Forms */
-        .input-group { background: var(--card-bg); padding: 20px; border-radius: 20px; margin-top: 20px; }
-        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 14px; border-radius: 12px; width: 100%; margin-bottom: 12px; outline: none; }
-        input:focus { border-color: var(--accent-teal); }
+        /* Inputs & Buttons */
+        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 14px; border-radius: 12px; width: 100%; margin-bottom: 12px; }
         .btn { background: var(--accent-teal); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-sec { background: transparent; border: 1px solid var(--text-dim); color: var(--text-dim); margin-top: 10px; }
+        .btn-sec { background: #334155; margin-top: 10px; }
 
-        /* List Items */
-        .row { background: var(--card-bg); padding: 15px; border-radius: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
-        .done { text-decoration: line-through; color: var(--text-dim); opacity: 0.6; }
-
-        /* Bottom Nav */
-        nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #1e293b; border-radius: 25px; height: 75px; display: flex; justify-content: space-around; align-items: center; border: 1px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .nav-item { color: var(--text-dim); text-align: center; font-size: 11px; cursor: pointer; }
+        /* Nav */
+        nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #1e293b; border-radius: 25px; height: 75px; display: flex; justify-content: space-around; align-items: center; border: 1px solid #334155; }
+        .nav-item { color: var(--text-dim); text-align: center; font-size: 10px; cursor: pointer; }
         .nav-item.active { color: var(--accent-teal); }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
     <div id="auth-overlay">
         <div class="auth-card">
-            <i class="fas fa-rocket" style="font-size: 40px; color: var(--accent-teal); margin-bottom: 15px;"></i>
-            <h2>Welcome Back</h2>
-            <input type="email" id="email" placeholder="Email Address">
+            <h2 style="color:var(--accent-teal)">FocusTracker Cloud</h2>
+            <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Password">
             <button class="btn" onclick="handleAuth('login')">Sign In</button>
             <button class="btn btn-sec" onclick="handleAuth('signup')">Create Account</button>
-            <p id="auth-error" style="color:var(--danger); font-size:12px; margin-top:15px;"></p>
+            <p id="auth-error" style="color:var(--danger); font-size:12px; margin-top:10px;"></p>
         </div>
     </div>
 
     <div id="app-content" style="display:none;">
         
         <div id="view-dashboard" class="view active">
-            <div style="color:var(--text-dim); font-size:14px;">Productivity Overview</div>
             <h1 id="user-title">Hello!</h1>
             <div class="stats-grid">
                 <div class="stat-card"><span class="stat-label">Total Hours</span><span class="stat-val" id="d-hours">0.0</span></div>
-                <div class="stat-card"><span class="stat-label">Daily Goal</span><span class="stat-val" id="d-goal">0%</span></div>
-                <div class="stat-card"><span class="stat-label">Habits</span><span class="stat-val" id="d-habits">0%</span></div>
-                <div class="stat-card"><span class="stat-label">Streak</span><span class="stat-val" id="d-streak">0</span></div>
+                <div class="stat-card"><span class="stat-label">Goal Met</span><span class="stat-val" id="d-goal">0%</span></div>
             </div>
-            <div class="chart-section">
-                <b>Weekly Activity</b>
-                <div class="chart-bars">
-                    <div class="bar" style="height: 20%"></div><div class="bar" style="height: 45%"></div>
-                    <div class="bar" style="height: 70%"></div><div class="bar active" id="today-bar" style="height: 0%"></div>
-                </div>
+            <div class="stat-card" style="margin-top:15px; text-align:center; border-color:var(--accent-teal);">
+                <span class="stat-label">Current Streak</span>
+                <span class="stat-val" style="font-size:40px;"><i class="fas fa-fire"></i> <span id="d-streak">0</span></span>
             </div>
         </div>
 
-        <div id="view-study" class="view">
-            <h1>Log Session</h1>
-            <div class="input-group">
-                <input type="text" id="s-name" placeholder="Subject Name">
-                <input type="number" id="s-hrs" placeholder="Hours Studied">
-                <button class="btn" onclick="addStudy()">Add to Cloud</button>
+        <div id="view-timer" class="view">
+            <h1 style="text-align:center;">Deep Work Timer</h1>
+            <div class="timer-circle" id="timer-display">25:00</div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" id="timer-btn" onclick="toggleTimer()">Start Focus</button>
+                <button class="btn btn-sec" onclick="resetTimer()">Reset</button>
             </div>
-            <div id="study-list"></div>
+            <p style="text-align:center; color:var(--text-dim); margin-top:15px;">Focus for 25 mins to log 0.4 hours.</p>
         </div>
 
-        <div id="view-habits" class="view">
-            <h1>Daily Habits</h1>
-            <div class="input-group">
-                <input type="text" id="h-input" placeholder="e.g. Morning Meditation">
-                <button class="btn" onclick="addHabit()">Add Habit</button>
+        <div id="view-community" class="view">
+            <h1>Global Study Group</h1>
+            <div id="chat-box"></div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="chat-input" placeholder="Say something..." style="margin-bottom:0;">
+                <button class="btn" style="width:60px;" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
             </div>
-            <div id="habit-list"></div>
         </div>
 
         <div id="view-profile" class="view">
-            <h1>Your Account</h1>
-            <div class="stat-card" style="text-align:center;">
-                <h3 id="profile-email">---</h3>
-                <p style="color:var(--text-dim);">Syncing to Firebase Cloud</p>
-                <button class="btn" style="background:var(--danger);" onclick="logout()">Logout</button>
+            <h1>Settings</h1>
+            <div class="stat-card">
+                <p id="profile-email">---</p>
+                <button class="btn" style="background:var(--danger)" onclick="logout()">Logout</button>
             </div>
         </div>
 
         <nav>
             <div class="nav-item active" onclick="nav('dashboard', this)"><i class="fas fa-home"></i>Home</div>
-            <div class="nav-item" onclick="nav('study', this)"><i class="fas fa-book"></i>Study</div>
-            <div class="nav-item" onclick="nav('habits', this)"><i class="fas fa-check-double"></i>Habits</div>
-            <div class="nav-item" onclick="nav('profile', this)"><i class="fas fa-user"></i>Profile</div>
+            <div class="nav-item" onclick="nav('timer', this)"><i class="fas fa-stopwatch"></i>Timer</div>
+            <div class="nav-item" onclick="nav('community', this)"><i class="fas fa-users"></i>Chat</div>
+            <div class="nav-item" onclick="nav('profile', this)"><i class="fas fa-cog"></i>Profile</div>
         </nav>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD0txpbZjCwn6TSWF6rCnPlq46th9L-N5w",
@@ -145,43 +130,81 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let state = { hours: 0, sessions: [], habits: [], streak: 0 };
+        let state = { hours: 0, streak: 0 };
+        let timerSeconds = 1500;
+        let timerInterval = null;
 
-        // --- Auth Flow ---
-        window.handleAuth = (type) => {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            const action = type === 'signup' ? createUserWithEmailAndPassword : signInWithEmailAndPassword;
-            action(auth, email, pass).catch(e => document.getElementById('auth-error').textContent = e.message);
+        // --- Auth & Sync ---
+        window.handleAuth = (t) => {
+            const e = document.getElementById('email').value, p = document.getElementById('password').value;
+            (t === 'signup' ? createUserWithEmailAndPassword : signInWithEmailAndPassword)(auth, e, p).catch(err => document.getElementById('auth-error').textContent = err.message);
         };
-
         window.logout = () => signOut(auth);
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
+        onAuthStateChanged(auth, async (u) => {
+            if (u) {
                 document.getElementById('auth-overlay').style.display = 'none';
                 document.getElementById('app-content').style.display = 'block';
-                document.getElementById('profile-email').textContent = user.email;
-                document.getElementById('user-title').textContent = "Hey, " + user.email.split('@')[0];
-                
-                // Fetch Data from Cloud
-                const snap = await getDoc(doc(db, "users", user.uid));
+                document.getElementById('profile-email').textContent = u.email;
+                const snap = await getDoc(doc(db, "users", u.uid));
                 if (snap.exists()) state = snap.data();
                 render();
+                loadChat();
             } else {
                 document.getElementById('auth-overlay').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'none';
             }
         });
 
-        // --- Cloud Save ---
-        window.save = async () => {
-            const user = auth.currentUser;
-            if (user) await setDoc(doc(db, "users", user.uid), state);
-            render();
+        // --- Save Logic ---
+        const cloudSave = async () => { if(auth.currentUser) await setDoc(doc(db, "users", auth.currentUser.uid), state); render(); };
+
+        // --- Timer Logic ---
+        window.toggleTimer = () => {
+            const btn = document.getElementById('timer-btn');
+            if (timerInterval) {
+                clearInterval(timerInterval); timerInterval = null; btn.textContent = "Resume Focus";
+            } else {
+                btn.textContent = "Pause";
+                timerInterval = setInterval(() => {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                    if (timerSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        state.hours += 0.4; // 25 mins ≈ 0.4 hrs
+                        alert("Session Complete! 0.4 hours added to your cloud.");
+                        resetTimer(); cloudSave();
+                    }
+                }, 1000);
+            }
+        };
+        window.resetTimer = () => { clearInterval(timerInterval); timerInterval = null; timerSeconds = 1500; updateTimerDisplay(); document.getElementById('timer-btn').textContent = "Start Focus"; };
+        const updateTimerDisplay = () => {
+            const m = Math.floor(timerSeconds / 60), s = timerSeconds % 60;
+            document.getElementById('timer-display').textContent = `${m}:${s < 10 ? '0'+s : s}`;
         };
 
-        // --- UI Actions ---
+        // --- Chat Logic ---
+        window.sendMessage = async () => {
+            const input = document.getElementById('chat-input');
+            if (!input.value) return;
+            await addDoc(collection(db, "messages"), { text: input.value, user: auth.currentUser.email, uid: auth.currentUser.uid, time: serverTimestamp() });
+            input.value = '';
+        };
+        function loadChat() {
+            const q = query(collection(db, "messages"), orderBy("time", "asc"), limit(50));
+            onSnapshot(q, (snap) => {
+                const box = document.getElementById('chat-box');
+                box.innerHTML = snap.docs.map(d => {
+                    const m = d.data();
+                    const isMe = m.uid === auth.currentUser.uid;
+                    return `<div class="msg ${isMe ? 'me' : 'them'}"><b>${m.user.split('@')[0]}:</b><br>${m.text}</div>`;
+                }).join('');
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        // --- Core UI ---
         window.nav = (id, el) => {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -189,52 +212,15 @@
             el.classList.add('active');
         };
 
-        window.addStudy = () => {
-            const n = document.getElementById('s-name'), h = document.getElementById('s-hrs');
-            if(!n.value || !h.value) return;
-            state.sessions.push({id: Date.now(), name: n.value, hrs: parseFloat(h.value)});
-            state.hours += parseFloat(h.value);
-            n.value = ''; h.value = ''; save();
-        };
-
-        window.addHabit = () => {
-            const i = document.getElementById('h-input');
-            if(!i.value) return;
-            state.habits.push({id: Date.now(), name: i.value, done: false});
-            i.value = ''; save();
-        };
-
-        window.toggleHabit = (id) => {
-            const habit = state.habits.find(x => x.id === id);
-            habit.done = !habit.done; save();
-        };
-
-        window.deleteItem = (type, id) => {
-            if(type === 's') {
-                state.hours -= state.sessions.find(x => x.id === id).hrs;
-                state.sessions = state.sessions.filter(x => x.id !== id);
-            } else { state.habits = state.habits.filter(x => x.id !== id); }
-            save();
-        };
-
         function render() {
             document.getElementById('d-hours').textContent = state.hours.toFixed(1);
+            document.getElementById('d-streak').textContent = state.streak;
             const goal = Math.min((state.hours / 8) * 100, 100);
             document.getElementById('d-goal').textContent = Math.round(goal) + "%";
             document.getElementById('today-bar').style.height = goal + "%";
-            
-            const doneH = state.habits.filter(x => x.done).length;
-            document.getElementById('d-habits').textContent = (state.habits.length ? Math.round((doneH/state.habits.length)*100) : 0) + "%";
-
-            document.getElementById('study-list').innerHTML = state.sessions.map(s => `
-                <div class="row"><span><b>${s.name}</b>: ${s.hrs}h</span><i class="fas fa-trash" onclick="deleteItem('s', ${s.id})"></i></div>
-            `).join('');
-
-            document.getElementById('habit-list').innerHTML = state.habits.map(h => `
-                <div class="row"><div onclick="toggleHabit(${h.id})"><i class="${h.done ? 'fas fa-check-circle' : 'far fa-circle'}"></i> <span class="${h.done ? 'done' : ''}">${h.name}</span></div><i class="fas fa-times" onclick="deleteItem('h', ${h.id})"></i></div>
-            `).join('');
+            if(goal >= 100) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
     </script>
 </body>
-    </html>
-                                                                                                   
+                                                                   </html>
+                
