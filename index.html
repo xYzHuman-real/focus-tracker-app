@@ -3,270 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Focus Tracker | Ultimate Productivity</title>
+    <title>FocusTracker Pro | Cloud Sync</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f172a;
-            --sidebar-color: #1e293b;
-            --accent-color: #38bdf8;
-            --text-color: #f8fafc;
-            --card-bg: #334155;
-            --border-color: #475569;
-            --transition: all 0.3s ease;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent-teal: #10b981;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --danger: #ef4444;
         }
 
-        :root.light-theme {
-            --bg-color: #f1f5f9;
-            --sidebar-color: #ffffff;
-            --accent-color: #0ea5e9;
-            --text-color: #1e293b;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; transition: 0.2s ease; }
+        body { background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding-bottom: 100px; overflow-x: hidden; }
 
-        * { box-sizing: border-box; transition: var(--transition); }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-color); overflow: hidden; }
+        /* Auth Screen */
+        #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: var(--card-bg); padding: 35px; border-radius: 25px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
 
-        .app-container { display: flex; height: 100vh; }
-
-        /* Sidebar */
-        .sidebar { width: 260px; background: var(--sidebar-color); padding: 25px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
-        .sidebar h2 { color: var(--accent-color); margin-bottom: 30px; font-size: 1.5rem; }
-        .sidebar ul { list-style: none; padding: 0; flex: 1; }
-        .sidebar li { padding: 12px 15px; cursor: pointer; border-radius: 10px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
-        .sidebar li:hover, .sidebar li.active { background: var(--accent-color); color: white; }
-        
-        /* Main Content */
-        .content { flex: 1; padding: 40px; overflow-y: auto; }
-        .view { display: none; animation: fadeIn 0.4s ease; }
+        /* Views */
+        .view { display: none; padding: 20px; animation: fadeIn 0.4s ease; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Dashboard Components */
-        .goal-container { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 1px solid var(--border-color); }
-        .progress-bar-bg { width: 100%; height: 12px; background: var(--bg-color); border-radius: 6px; overflow: hidden; margin: 15px 0; }
-        #progress-fill { height: 100%; width: 0%; background: var(--accent-color); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
-        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); }
+        /* Stats & Cards */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid #334155; }
+        .stat-val { font-size: 26px; font-weight: 800; display: block; color: var(--accent-teal); }
+        .stat-label { color: var(--text-dim); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Pomodoro */
-        .timer-display { font-size: 6rem; font-weight: 800; text-align: center; margin: 40px 0; font-variant-numeric: tabular-nums; }
-        .timer-controls { display: flex; justify-content: center; gap: 15px; }
-        button { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: var(--accent-color); color: white; }
-        button.secondary { background: var(--border-color); }
-        .delete-btn { background: #ef4444; padding: 5px 10px; font-size: 0.8rem; }
+        /* Chart */
+        .chart-section { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid #334155; margin-top: 20px; }
+        .chart-bars { display: flex; justify-content: space-between; align-items: flex-end; height: 100px; margin-top: 15px; }
+        .bar { width: 12%; background: #334155; border-radius: 5px; }
+        .bar.active { background: var(--accent-teal); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
 
-        /* Community & Chat */
-        .chat-box { height: 200px; background: var(--bg-color); border-radius: 8px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
-        .message { padding: 8px 12px; border-radius: 12px; font-size: 0.85rem; max-width: 80%; }
-        .message.other { background: var(--card-bg); align-self: flex-start; }
-        .message.user { background: var(--accent-color); color: white; align-self: flex-end; }
-        
-        .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .leaderboard-table td, th { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        /* Forms */
+        .input-group { background: var(--card-bg); padding: 20px; border-radius: 20px; margin-top: 20px; }
+        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 14px; border-radius: 12px; width: 100%; margin-bottom: 12px; outline: none; }
+        input:focus { border-color: var(--accent-teal); }
+        .btn { background: var(--accent-teal); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-sec { background: transparent; border: 1px solid var(--text-dim); color: var(--text-dim); margin-top: 10px; }
 
-        input { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); }
+        /* List Items */
+        .row { background: var(--card-bg); padding: 15px; border-radius: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
+        .done { text-decoration: line-through; color: var(--text-dim); opacity: 0.6; }
+
+        /* Bottom Nav */
+        nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #1e293b; border-radius: 25px; height: 75px; display: flex; justify-content: space-around; align-items: center; border: 1px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .nav-item { color: var(--text-dim); text-align: center; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: var(--accent-teal); }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <nav class="sidebar">
-            <h2><i class="fas fa-bullseye"></i> Focus</h2>
-            <ul>
-                <li onclick="showSection('dashboard')" class="nav-item active"><i class="fas fa-home"></i> Dashboard</li>
-                <li onclick="showSection('pomodoro')" class="nav-item"><i class="fas fa-clock"></i> Pomodoro</li>
-                <li onclick="showSection('habits')" class="nav-item"><i class="fas fa-check-circle"></i> Habits</li>
-                <li onclick="showSection('community')" class="nav-item"><i class="fas fa-users"></i> Community</li>
-            </ul>
-            <button onclick="toggleTheme()" id="theme-btn" class="secondary"><i class="fas fa-moon"></i> Dark Mode</button>
-        </nav>
-
-        <main class="content">
-            <section id="dashboard" class="view active">
-                <h1>Dashboard</h1>
-                <div class="goal-container">
-                    <h3>Daily Goal: <span id="goal-status">0/4</span> Sessions</h3>
-                    <div class="progress-bar-bg"><div id="progress-fill"></div></div>
-                    <input type="number" id="goal-input" placeholder="Set Goal" style="width: 80px;">
-                    <button onclick="setNewGoal()">Set</button>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card"><h3>Focus Hours</h3><p id="focus-hours">0h</p></div>
-                    <div class="stat-card"><h3>Goal Met</h3><p id="goals-percent">0%</p></div>
-                    <div class="stat-card"><h3>Streak</h3><p>5 Days</p></div>
-                </div>
-            </section>
-
-            <section id="pomodoro" class="view">
-                <h1 style="text-align:center;">Study Timer</h1>
-                <div class="timer-display" id="timer-display">25:00</div>
-                <div class="timer-controls">
-                    <button id="start-btn" onclick="toggleTimer()">Start Session</button>
-                    <button class="secondary" onclick="resetTimer()">Reset</button>
-                </div>
-            </section>
-
-            <section id="habits" class="view">
-                <h1>Habit Tracker</h1>
-                <div style="margin-bottom: 20px;">
-                    <input type="text" id="habit-input" placeholder="Enter new habit...">
-                    <button onclick="addHabit()">Add Habit</button>
-                </div>
-                <div id="habit-list"></div>
-            </section>
-
-            <section id="community" class="view">
-                <h1>Community</h1>
-                <div class="goal-container">
-                    <h3>Global Leaderboard</h3>
-                    <table class="leaderboard-table">
-                        <tbody id="leaderboard-body"></tbody>
-                    </table>
-                </div>
-                <h3>Study Group Chat</h3>
-                <div id="chat-box" class="chat-box"></div>
-                <div style="margin-top:10px; display:flex; gap:10px;">
-                    <input type="text" id="chat-input" placeholder="Send a message..." style="flex:1;">
-                    <button onclick="sendUserMessage()">Send</button>
-                </div>
-            </section>
-        </main>
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <i class="fas fa-rocket" style="font-size: 40px; color: var(--accent-teal); margin-bottom: 15px;"></i>
+            <h2>Welcome Back</h2>
+            <input type="email" id="email" placeholder="Email Address">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn" onclick="handleAuth('login')">Sign In</button>
+            <button class="btn btn-sec" onclick="handleAuth('signup')">Create Account</button>
+            <p id="auth-error" style="color:var(--danger); font-size:12px; margin-top:15px;"></p>
+        </div>
     </div>
 
-    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
-
-    <script>
-        // 1. DATA STATE
-        let appData = JSON.parse(localStorage.getItem('focusTrackerData')) || {
-            theme: 'dark',
-            sessionsCompleted: 0,
-            dailyGoal: 4,
-            habits: [],
-            streak: 5
-        };
-
-        // 2. CORE UTILITIES
-        function save() { localStorage.setItem('focusTrackerData', JSON.stringify(appData)); }
-
-        function showSection(id) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        // 3. TIMER LOGIC
-        let timeLeft = 1500;
-        let timerId = null;
-
-        function toggleTimer() {
-            const btn = document.getElementById('start-btn');
-            if (timerId) {
-                clearInterval(timerId);
-                timerId = null;
-                btn.textContent = "Start Session";
-            } else {
-                btn.textContent = "Pause Session";
-                timerId = setInterval(() => {
-                    timeLeft--;
-                    updateTimerDisplay();
-                    if (timeLeft <= 0) {
-                        clearInterval(timerId);
-                        document.getElementById('alarm-sound').play();
-                        appData.sessionsCompleted++;
-                        save();
-                        refreshUI();
-                        alert("Session complete!");
-                        resetTimer();
-                    }
-                }, 1000);
-            }
-        }
-
-        function updateTimerDisplay() {
-            const m = Math.floor(timeLeft / 60);
-            const s = timeLeft % 60;
-            document.getElementById('timer-display').textContent = `${m}:${s < 10 ? '0'+s : s}`;
-        }
-
-        function resetTimer() {
-            clearInterval(timerId);
-            timerId = null;
-            timeLeft = 1500;
-            updateTimerDisplay();
-            document.getElementById('start-btn').textContent = "Start Session";
-        }
-
-        // 4. HABITS & GOALS
-        function addHabit() {
-            const val = document.getElementById('habit-input').value;
-            if(!val) return;
-            appData.habits.push({id: Date.now(), text: val});
-            document.getElementById('habit-input').value = '';
-            save(); refreshUI();
-        }
-
-        function deleteHabit(id) {
-            appData.habits = appData.habits.filter(h => h.id !== id);
-            save(); refreshUI();
-        }
-
-        function setNewGoal() {
-            const val = document.getElementById('goal-input').value;
-            if(val > 0) { appData.dailyGoal = val; save(); refreshUI(); }
-        }
-
-        // 5. UI REFRESH
-        function refreshUI() {
-            // Dashboard
-            document.getElementById('goal-status').textContent = `${appData.sessionsCompleted}/${appData.dailyGoal}`;
-            const percent = Math.min((appData.sessionsCompleted / appData.dailyGoal) * 100, 100);
-            document.getElementById('progress-fill').style.width = percent + "%";
-            document.getElementById('goals-percent').textContent = Math.round(percent) + "%";
-            document.getElementById('focus-hours').textContent = ((appData.sessionsCompleted * 25)/60).toFixed(1) + "h";
-
-            // Habits
-            document.getElementById('habit-list').innerHTML = appData.habits.map(h => `
-                <div class="stat-card" style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span>${h.text}</span>
-                    <button class="delete-btn" onclick="deleteHabit(${h.id})">Delete</button>
+    <div id="app-content" style="display:none;">
+        
+        <div id="view-dashboard" class="view active">
+            <div style="color:var(--text-dim); font-size:14px;">Productivity Overview</div>
+            <h1 id="user-title">Hello!</h1>
+            <div class="stats-grid">
+                <div class="stat-card"><span class="stat-label">Total Hours</span><span class="stat-val" id="d-hours">0.0</span></div>
+                <div class="stat-card"><span class="stat-label">Daily Goal</span><span class="stat-val" id="d-goal">0%</span></div>
+                <div class="stat-card"><span class="stat-label">Habits</span><span class="stat-val" id="d-habits">0%</span></div>
+                <div class="stat-card"><span class="stat-label">Streak</span><span class="stat-val" id="d-streak">0</span></div>
+            </div>
+            <div class="chart-section">
+                <b>Weekly Activity</b>
+                <div class="chart-bars">
+                    <div class="bar" style="height: 20%"></div><div class="bar" style="height: 45%"></div>
+                    <div class="bar" style="height: 70%"></div><div class="bar active" id="today-bar" style="height: 0%"></div>
                 </div>
-            `).join('');
+            </div>
+        </div>
 
-            // Leaderboard
-            const mock = [{n:"ZenCoder", h:22}, {n:"StudyBeast", h:18}, {n:"You", h:((appData.sessionsCompleted * 25)/60)}];
-            mock.sort((a,b) => b.h - a.h);
-            document.getElementById('leaderboard-body').innerHTML = mock.map((u, i) => `
-                <tr><td>#${i+1}</td><td>${u.n}</td><td>${u.h.toFixed(1)}h</td></tr>
-            `).join('');
-        }
+        <div id="view-study" class="view">
+            <h1>Log Session</h1>
+            <div class="input-group">
+                <input type="text" id="s-name" placeholder="Subject Name">
+                <input type="number" id="s-hrs" placeholder="Hours Studied">
+                <button class="btn" onclick="addStudy()">Add to Cloud</button>
+            </div>
+            <div id="study-list"></div>
+        </div>
 
-        // 6. THEME & CHAT
-        function toggleTheme() {
-            appData.theme = appData.theme === 'dark' ? 'light' : 'dark';
-            document.documentElement.className = appData.theme + '-theme';
-            document.getElementById('theme-btn').innerHTML = appData.theme === 'dark' ? '<i class="fas fa-moon"></i> Dark' : '<i class="fas fa-sun"></i> Light';
-            save();
-        }
+        <div id="view-habits" class="view">
+            <h1>Daily Habits</h1>
+            <div class="input-group">
+                <input type="text" id="h-input" placeholder="e.g. Morning Meditation">
+                <button class="btn" onclick="addHabit()">Add Habit</button>
+            </div>
+            <div id="habit-list"></div>
+        </div>
 
-        function sendUserMessage() {
-            const inp = document.getElementById('chat-input');
-            if(!inp.value) return;
-            const box = document.getElementById('chat-box');
-            box.innerHTML += `<div class="message user"><strong>You:</strong> ${inp.value}</div>`;
-            inp.value = '';
-            box.scrollTop = box.scrollHeight;
-        }
+        <div id="view-profile" class="view">
+            <h1>Your Account</h1>
+            <div class="stat-card" style="text-align:center;">
+                <h3 id="profile-email">---</h3>
+                <p style="color:var(--text-dim);">Syncing to Firebase Cloud</p>
+                <button class="btn" style="background:var(--danger);" onclick="logout()">Logout</button>
+            </div>
+        </div>
 
-        // Init
-        window.onload = () => {
-            if(appData.theme === 'light') document.documentElement.className = 'light-theme';
-            refreshUI();
-            updateTimerDisplay();
+        <nav>
+            <div class="nav-item active" onclick="nav('dashboard', this)"><i class="fas fa-home"></i>Home</div>
+            <div class="nav-item" onclick="nav('study', this)"><i class="fas fa-book"></i>Study</div>
+            <div class="nav-item" onclick="nav('habits', this)"><i class="fas fa-check-double"></i>Habits</div>
+            <div class="nav-item" onclick="nav('profile', this)"><i class="fas fa-user"></i>Profile</div>
+        </nav>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0txpbZjCwn6TSWF6rCnPlq46th9L-N5w",
+            authDomain: "focustrackerapp-c3b36.firebaseapp.com",
+            projectId: "focustrackerapp-c3b36",
+            storageBucket: "focustrackerapp-c3b36.firebasestorage.app",
+            messagingSenderId: "985621079314",
+            appId: "1:985621079314:web:a5f8661196d5e353d5ffcb"
         };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let state = { hours: 0, sessions: [], habits: [], streak: 0 };
+
+        // --- Auth Flow ---
+        window.handleAuth = (type) => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            const action = type === 'signup' ? createUserWithEmailAndPassword : signInWithEmailAndPassword;
+            action(auth, email, pass).catch(e => document.getElementById('auth-error').textContent = e.message);
+        };
+
+        window.logout = () => signOut(auth);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                document.getElementById('profile-email').textContent = user.email;
+                document.getElementById('user-title').textContent = "Hey, " + user.email.split('@')[0];
+                
+                // Fetch Data from Cloud
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (snap.exists()) state = snap.data();
+                render();
+            } else {
+                document.getElementById('auth-overlay').style.display = 'flex';
+                document.getElementById('app-content').style.display = 'none';
+            }
+        });
+
+        // --- Cloud Save ---
+        window.save = async () => {
+            const user = auth.currentUser;
+            if (user) await setDoc(doc(db, "users", user.uid), state);
+            render();
+        };
+
+        // --- UI Actions ---
+        window.nav = (id, el) => {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('view-' + id).classList.add('active');
+            el.classList.add('active');
+        };
+
+        window.addStudy = () => {
+            const n = document.getElementById('s-name'), h = document.getElementById('s-hrs');
+            if(!n.value || !h.value) return;
+            state.sessions.push({id: Date.now(), name: n.value, hrs: parseFloat(h.value)});
+            state.hours += parseFloat(h.value);
+            n.value = ''; h.value = ''; save();
+        };
+
+        window.addHabit = () => {
+            const i = document.getElementById('h-input');
+            if(!i.value) return;
+            state.habits.push({id: Date.now(), name: i.value, done: false});
+            i.value = ''; save();
+        };
+
+        window.toggleHabit = (id) => {
+            const habit = state.habits.find(x => x.id === id);
+            habit.done = !habit.done; save();
+        };
+
+        window.deleteItem = (type, id) => {
+            if(type === 's') {
+                state.hours -= state.sessions.find(x => x.id === id).hrs;
+                state.sessions = state.sessions.filter(x => x.id !== id);
+            } else { state.habits = state.habits.filter(x => x.id !== id); }
+            save();
+        };
+
+        function render() {
+            document.getElementById('d-hours').textContent = state.hours.toFixed(1);
+            const goal = Math.min((state.hours / 8) * 100, 100);
+            document.getElementById('d-goal').textContent = Math.round(goal) + "%";
+            document.getElementById('today-bar').style.height = goal + "%";
+            
+            const doneH = state.habits.filter(x => x.done).length;
+            document.getElementById('d-habits').textContent = (state.habits.length ? Math.round((doneH/state.habits.length)*100) : 0) + "%";
+
+            document.getElementById('study-list').innerHTML = state.sessions.map(s => `
+                <div class="row"><span><b>${s.name}</b>: ${s.hrs}h</span><i class="fas fa-trash" onclick="deleteItem('s', ${s.id})"></i></div>
+            `).join('');
+
+            document.getElementById('habit-list').innerHTML = state.habits.map(h => `
+                <div class="row"><div onclick="toggleHabit(${h.id})"><i class="${h.done ? 'fas fa-check-circle' : 'far fa-circle'}"></i> <span class="${h.done ? 'done' : ''}">${h.name}</span></div><i class="fas fa-times" onclick="deleteItem('h', ${h.id})"></i></div>
+            `).join('');
+        }
     </script>
 </body>
-  </html>
-  
+    </html>
+                                                                                                   
